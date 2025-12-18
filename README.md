@@ -60,6 +60,22 @@ The goal of NeuroFlow is to democratize fine-tuning and AI orchestration. Whethe
 ### **AI Core**: Gemini API
 *   **Integration**: Official `@google/genai` SDK for structured JSON generation of graph states.
 
+ <p align="center">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/streamlit-workflow.jpg" width="150" alt="NeuroFlow Logo">
+</p>
+
+ <p align="center">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/logs1.jpg" width="150" alt="NeuroFlow Logo">
+</p>
+
+<p align="center">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/logs-json.jpg" width="150" alt="NeuroFlow Logo">
+</p>
+
+<p align="center">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/python-logs.jpg" width="150" alt="NeuroFlow Logo">
+</p>
+
 ---
 
 ## 🛠️ Setup and Installation
@@ -121,6 +137,15 @@ The app will be available at `http://localhost:5173`.
 1.  **AI Build**: Click the "AI Build" button and type *"Fine-tune Llama 3 on a medical dataset"*.
 2.  **Save/Load**: Create a graph, refresh the page, and verify the graph persists.
 3.  **UI Launch**: Add a "Streamlit UI" node, connect it to a model output, and click "Train". A new browser tab will open with the generated interface.
+
+   <p align="center">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/result.jpg" width="150" alt="NeuroFlow Logo">
+</p>
+
+ <p align="center">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/streamlit.jpg" width="150" alt="NeuroFlow Logo">
+</p>
+
 
 ### Automated Diagnostics
 A diagnostic script is provided to verify your Gemini model access:
