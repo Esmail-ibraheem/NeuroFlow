@@ -1,4 +1,8 @@
 
+<p align="center">
+  <img src="assets/logo.png" width="150" alt="NeuroFlow Logo">
+</p>
+
 # 🧠 NeuroFlow: The AI-Architected Training Platform
 
 NeuroFlow is a state-of-the-art node-based platform designed to simplify the creation, management, and deployment of AI training pipelines. By combining the power of **AutoTrain Advanced**, a robust **React-Flow** frontend, and **Gemini-powered AI Architecture**, NeuroFlow enables users to build production-ready AI workflows in minutes.
