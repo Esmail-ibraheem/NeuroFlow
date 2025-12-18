@@ -12,6 +12,10 @@ NeuroFlow is a state-of-the-art node-based platform designed to simplify the cre
 ## 🚀 Vision
 The goal of NeuroFlow is to democratize fine-tuning and AI orchestration. Whether you are a researcher or an engineer, you can design complex pipelines—from data ingestion to model deployment—using a visual canvas aided by an AI co-pilot.
 
+<p align="center">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/production-workflow2.png" alt="NeuroFlow1">
+</p>
+
 ---
 
 ## ✨ Key Features
@@ -34,6 +38,10 @@ The goal of NeuroFlow is to democratize fine-tuning and AI orchestration. Whethe
 *   **Dynamic UI Generation**: Automatically generates and launches interactive web interfaces (Streamlit/Gradio) tailored to your pipeline's inputs and outputs.
 *   **Local Persistence**: Graphs are automatically saved to your browser's local storage.
 *   **Pipeline Export**: Download your architectures as JSON for sharing or version control.
+
+  <p align="center">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/production-workflow.jpg" alt="NeuroFlow Logo">
+</p>
 
 ---
 
