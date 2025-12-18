@@ -61,19 +61,19 @@ The goal of NeuroFlow is to democratize fine-tuning and AI orchestration. Whethe
 *   **Integration**: Official `@google/genai` SDK for structured JSON generation of graph states.
 
  <p align="center">
-  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/streamlit-workflow.jpg" width="150" alt="NeuroFlow Logo">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/streamlit-workflow.jpg"  alt="NeuroFlow Logo">
 </p>
 
  <p align="center">
-  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/logs1.jpg" width="150" alt="NeuroFlow Logo">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/logs1.jpg"  alt="NeuroFlow Logo">
 </p>
 
 <p align="center">
-  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/logs-json.jpg" width="150" alt="NeuroFlow Logo">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/logs-json.jpg"  alt="NeuroFlow Logo">
 </p>
 
 <p align="center">
-  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/python-logs.jpg" width="150" alt="NeuroFlow Logo">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/python-logs.jpg" alt="NeuroFlow Logo">
 </p>
 
 ---
