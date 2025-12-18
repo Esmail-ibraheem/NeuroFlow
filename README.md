@@ -138,12 +138,16 @@ The app will be available at `http://localhost:5173`.
 2.  **Save/Load**: Create a graph, refresh the page, and verify the graph persists.
 3.  **UI Launch**: Add a "Streamlit UI" node, connect it to a model output, and click "Train". A new browser tab will open with the generated interface.
 
+<p align="center">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/NeuroBot.jpg" width="150" alt="NeuroFlow Logo">
+</p>
+
    <p align="center">
-  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/result.jpg" width="150" alt="NeuroFlow Logo">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/result.jpg" alt="NeuroFlow Logo">
 </p>
 
  <p align="center">
-  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/streamlit.jpg" width="150" alt="NeuroFlow Logo">
+  <img src="https://github.com/Esmail-ibraheem/NeuroFlow/blob/main/assets/streamlit.jpg" alt="NeuroFlow Logo">
 </p>
 
 
