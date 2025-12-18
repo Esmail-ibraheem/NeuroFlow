@@ -1,0 +1,491 @@
+import os
+import shlex
+
+import torch
+
+from autotrain import logger
+from trainers.clm.params import LLMTrainingParams
+from trainers.dreambooth.params import DreamBoothTrainingParams
+from trainers.extractive_question_answering.params import ExtractiveQuestionAnsweringParams
+from trainers.generic.params import GenericParams
+from trainers.image_classification.params import ImageClassificationParams
+from trainers.image_regression.params import ImageRegressionParams
+from trainers.object_detection.params import ObjectDetectionParams
+from trainers.sent_transformers.params import SentenceTransformersParams
+from trainers.seq2seq.params import Seq2SeqParams
+from trainers.tabular.params import TabularParams
+from trainers.text_classification.params import TextClassificationParams
+from trainers.text_regression.params import TextRegressionParams
+from trainers.token_classification.params import TokenClassificationParams
+from trainers.vlm.params import VLMTrainingParams
+
+
+def launch_command(params):
+    """
+    Launches training command based on the given parameters.
+
+    Args:
+        params: An instance of a parameter class (LLMTrainingParams, DreamBoothTrainingParams, GenericParams, TabularParams,
+                TextClassificationParams, TextRegressionParams, TokenClassificationParams, ImageClassificationParams,
+                ObjectDetectionParams, Seq2SeqParams).
+
+    Returns:
+        None
+    """
+
+    params.project_name = shlex.split(params.project_name)[0]
+    cuda_available = torch.cuda.is_available()
+    mps_available = torch.backends.mps.is_available()
+    if cuda_available:
+        num_gpus = torch.cuda.device_count()
+    elif mps_available:
+        num_gpus = 1
+    else:
+        num_gpus = 0
+    if isinstance(params, LLMTrainingParams):
+        if num_gpus == 0:
+            logger.warning("No GPU found. Forcing training on CPU. This will be super slow!")
+            cmd = [
+                "accelerate",
+                "launch",
+                "--cpu",
+            ]
+        elif num_gpus == 1:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--num_machines",
+                "1",
+                "--num_processes",
+                "1",
+            ]
+        elif num_gpus == 2:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--multi_gpu",
+                "--num_machines",
+                "1",
+                "--num_processes",
+                "2",
+            ]
+        else:
+            if params.quantization in ("int8", "int4") and params.peft and params.mixed_precision == "bf16":
+                cmd = [
+                    "accelerate",
+                    "launch",
+                    "--multi_gpu",
+                    "--num_machines",
+                    "1",
+                    "--num_processes",
+                    str(num_gpus),
+                ]
+            else:
+                cmd = [
+                    "accelerate",
+                    "launch",
+                    "--use_deepspeed",
+                    "--zero_stage",
+                    "3",
+                    "--offload_optimizer_device",
+                    "none",
+                    "--offload_param_device",
+                    "none",
+                    "--zero3_save_16bit_model",
+                    "true",
+                    "--zero3_init_flag",
+                    "true",
+                    "--deepspeed_multinode_launcher",
+                    "standard",
+                    "--gradient_accumulation_steps",
+                    str(params.gradient_accumulation),
+                ]
+
+        if num_gpus > 0:
+            cmd.append("--mixed_precision")
+            if params.mixed_precision == "fp16":
+                cmd.append("fp16")
+            elif params.mixed_precision == "bf16":
+                cmd.append("bf16")
+            else:
+                cmd.append("no")
+
+        cmd.extend(
+            [
+                "-m",
+                "trainers.clm",
+                "--training_config",
+                os.path.join(params.project_name, "training_params.json"),
+            ]
+        )
+    elif isinstance(params, DreamBoothTrainingParams):
+        cmd = [
+            "python",
+            "-m",
+            "trainers.dreambooth",
+            "--training_config",
+            os.path.join(params.project_name, "training_params.json"),
+        ]
+    elif isinstance(params, GenericParams):
+        cmd = [
+            "python",
+            "-m",
+            "trainers.generic",
+            "--config",
+            os.path.join(params.project_name, "training_params.json"),
+        ]
+    elif isinstance(params, TabularParams):
+        cmd = [
+            "python",
+            "-m",
+            "trainers.tabular",
+            "--training_config",
+            os.path.join(params.project_name, "training_params.json"),
+        ]
+    elif (
+        isinstance(params, TextClassificationParams)
+        or isinstance(params, TextRegressionParams)
+        or isinstance(params, SentenceTransformersParams)
+        or isinstance(params, ExtractiveQuestionAnsweringParams)
+    ):
+        if num_gpus == 0:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--cpu",
+            ]
+        elif num_gpus == 1:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--num_machines",
+                "1",
+                "--num_processes",
+                "1",
+            ]
+        else:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--multi_gpu",
+                "--num_machines",
+                "1",
+                "--num_processes",
+                str(num_gpus),
+            ]
+
+        if num_gpus > 0:
+            cmd.append("--mixed_precision")
+            if params.mixed_precision == "fp16":
+                cmd.append("fp16")
+            elif params.mixed_precision == "bf16":
+                cmd.append("bf16")
+            else:
+                cmd.append("no")
+
+        if isinstance(params, TextRegressionParams):
+            cmd.extend(
+                [
+                    "-m",
+                    "trainers.text_regression",
+                    "--training_config",
+                    os.path.join(params.project_name, "training_params.json"),
+                ]
+            )
+        elif isinstance(params, SentenceTransformersParams):
+            cmd.extend(
+                [
+                    "-m",
+                    "trainers.sent_transformers",
+                    "--training_config",
+                    os.path.join(params.project_name, "training_params.json"),
+                ]
+            )
+        elif isinstance(params, ExtractiveQuestionAnsweringParams):
+            cmd.extend(
+                [
+                    "-m",
+                    "trainers.extractive_question_answering",
+                    "--training_config",
+                    os.path.join(params.project_name, "training_params.json"),
+                ]
+            )
+        else:
+            cmd.extend(
+                [
+                    "-m",
+                    "trainers.text_classification",
+                    "--training_config",
+                    os.path.join(params.project_name, "training_params.json"),
+                ]
+            )
+    elif isinstance(params, TokenClassificationParams):
+        if num_gpus == 0:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--cpu",
+            ]
+        elif num_gpus == 1:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--num_machines",
+                "1",
+                "--num_processes",
+                "1",
+            ]
+        else:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--multi_gpu",
+                "--num_machines",
+                "1",
+                "--num_processes",
+                str(num_gpus),
+            ]
+
+        if num_gpus > 0:
+            cmd.append("--mixed_precision")
+            if params.mixed_precision == "fp16":
+                cmd.append("fp16")
+            elif params.mixed_precision == "bf16":
+                cmd.append("bf16")
+            else:
+                cmd.append("no")
+
+        cmd.extend(
+            [
+                "-m",
+                "trainers.token_classification",
+                "--training_config",
+                os.path.join(params.project_name, "training_params.json"),
+            ]
+        )
+    elif (
+        isinstance(params, ImageClassificationParams)
+        or isinstance(params, ObjectDetectionParams)
+        or isinstance(params, ImageRegressionParams)
+    ):
+        if num_gpus == 0:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--cpu",
+            ]
+        elif num_gpus == 1:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--num_machines",
+                "1",
+                "--num_processes",
+                "1",
+            ]
+        else:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--multi_gpu",
+                "--num_machines",
+                "1",
+                "--num_processes",
+                str(num_gpus),
+            ]
+
+        if num_gpus > 0:
+            cmd.append("--mixed_precision")
+            if params.mixed_precision == "fp16":
+                cmd.append("fp16")
+            elif params.mixed_precision == "bf16":
+                cmd.append("bf16")
+            else:
+                cmd.append("no")
+
+        if isinstance(params, ObjectDetectionParams):
+            cmd.extend(
+                [
+                    "-m",
+                    "trainers.object_detection",
+                    "--training_config",
+                    os.path.join(params.project_name, "training_params.json"),
+                ]
+            )
+        elif isinstance(params, ImageRegressionParams):
+            cmd.extend(
+                [
+                    "-m",
+                    "trainers.image_regression",
+                    "--training_config",
+                    os.path.join(params.project_name, "training_params.json"),
+                ]
+            )
+        else:
+            cmd.extend(
+                [
+                    "-m",
+                    "trainers.image_classification",
+                    "--training_config",
+                    os.path.join(params.project_name, "training_params.json"),
+                ]
+            )
+    elif isinstance(params, Seq2SeqParams):
+        if num_gpus == 0:
+            logger.warning("No GPU found. Forcing training on CPU. This will be super slow!")
+            cmd = [
+                "accelerate",
+                "launch",
+                "--cpu",
+            ]
+        elif num_gpus == 1:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--num_machines",
+                "1",
+                "--num_processes",
+                "1",
+            ]
+        elif num_gpus == 2:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--multi_gpu",
+                "--num_machines",
+                "1",
+                "--num_processes",
+                "2",
+            ]
+        else:
+            if params.quantization in ("int8", "int4") and params.peft and params.mixed_precision == "bf16":
+                cmd = [
+                    "accelerate",
+                    "launch",
+                    "--multi_gpu",
+                    "--num_machines",
+                    "1",
+                    "--num_processes",
+                    str(num_gpus),
+                ]
+            else:
+                cmd = [
+                    "accelerate",
+                    "launch",
+                    "--use_deepspeed",
+                    "--zero_stage",
+                    "3",
+                    "--offload_optimizer_device",
+                    "none",
+                    "--offload_param_device",
+                    "none",
+                    "--zero3_save_16bit_model",
+                    "true",
+                    "--zero3_init_flag",
+                    "true",
+                    "--deepspeed_multinode_launcher",
+                    "standard",
+                    "--gradient_accumulation_steps",
+                    str(params.gradient_accumulation),
+                ]
+        if num_gpus > 0:
+            cmd.append("--mixed_precision")
+            if params.mixed_precision == "fp16":
+                cmd.append("fp16")
+            elif params.mixed_precision == "bf16":
+                cmd.append("bf16")
+            else:
+                cmd.append("no")
+
+        cmd.extend(
+            [
+                "-m",
+                "trainers.seq2seq",
+                "--training_config",
+                os.path.join(params.project_name, "training_params.json"),
+            ]
+        )
+
+    elif isinstance(params, VLMTrainingParams):
+        if num_gpus == 0:
+            logger.warning("No GPU found. Forcing training on CPU. This will be super slow!")
+            cmd = [
+                "accelerate",
+                "launch",
+                "--cpu",
+            ]
+        elif num_gpus == 1:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--num_machines",
+                "1",
+                "--num_processes",
+                "1",
+            ]
+        elif num_gpus == 2:
+            cmd = [
+                "accelerate",
+                "launch",
+                "--multi_gpu",
+                "--num_machines",
+                "1",
+                "--num_processes",
+                "2",
+            ]
+        else:
+            if params.quantization in ("int8", "int4") and params.peft and params.mixed_precision == "bf16":
+                cmd = [
+                    "accelerate",
+                    "launch",
+                    "--multi_gpu",
+                    "--num_machines",
+                    "1",
+                    "--num_processes",
+                    str(num_gpus),
+                ]
+            else:
+                cmd = [
+                    "accelerate",
+                    "launch",
+                    "--use_deepspeed",
+                    "--zero_stage",
+                    "3",
+                    "--offload_optimizer_device",
+                    "none",
+                    "--offload_param_device",
+                    "none",
+                    "--zero3_save_16bit_model",
+                    "true",
+                    "--zero3_init_flag",
+                    "true",
+                    "--deepspeed_multinode_launcher",
+                    "standard",
+                    "--gradient_accumulation_steps",
+                    str(params.gradient_accumulation),
+                ]
+
+        if num_gpus > 0:
+            cmd.append("--mixed_precision")
+            if params.mixed_precision == "fp16":
+                cmd.append("fp16")
+            elif params.mixed_precision == "bf16":
+                cmd.append("bf16")
+            else:
+                cmd.append("no")
+
+        cmd.extend(
+            [
+                "-m",
+                "trainers.vlm",
+                "--training_config",
+                os.path.join(params.project_name, "training_params.json"),
+            ]
+        )
+
+    else:
+        raise ValueError("Unsupported params type")
+
+    logger.info(cmd)
+    logger.info(params)
+    return cmd

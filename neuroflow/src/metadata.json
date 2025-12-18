@@ -1,0 +1,5 @@
+{
+  "name": "NeuroFlow AutoTrain",
+  "description": "A node-based visual editor for training and fine-tuning AI models, inspired by Unreal Engine Blueprints and AutoTrain Advanced.",
+  "requestFramePermissions": []
+}
