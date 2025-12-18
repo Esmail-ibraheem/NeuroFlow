@@ -134,7 +134,5 @@ node list_models.js
 ---
 
 ## 📜 License
-Developed as part of the NeuroTron project. Custom licensing applies.
+Developed as part of the NeuroTron project. MIT.
 
----
-*Created by Antigravity AI for Esmail-AGumaan*
