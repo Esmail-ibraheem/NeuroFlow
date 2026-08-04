@@ -1,6 +1,6 @@
   
 <p align="center">
-  <img src="assets/logo.png" width="150" alt="NeuroFlow Logo">
+  <img src="assets/logo.png" width="150" alt="NeuroFlow Logo"> 
 </p>
 
 # 🧠 NeuroFlow: The AI-Architected Training Platform
